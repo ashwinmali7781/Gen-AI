@@ -1,0 +1,49 @@
+{% from "_macros.html" import gemini_hint %}
+<section class="panel" aria-labelledby="rag-up-h">
+  <h2 id="rag-up-h">1. Upload a document</h2>
+  <p class="muted">PDF or plain text, up to {{ ctx.max_upload_mb }} MB. Text is split into 180-word chunks (40-word overlap), embedded with <code>{{ ctx.embed_model }}</code> (about 90&nbsp;MB, needs PyTorch) and indexed with FAISS. Retrieval always runs locally; only the optional answer-writing step can use Gemini. Documents live in server memory and are cleared when the server restarts.</p>
+
+  {% if ctx.missing %}
+  <div class="alert alert-warn" role="status"><strong>Setup required.</strong> Missing packages: {{ ctx.missing|join(', ') }}. Run <code>pip install -r requirements-ml.txt</code>, then restart.</div>
+  {% endif %}
+
+  <form id="rag-upload-form" class="stack" novalidate>
+    <label for="rag-file">Choose a file ({{ ctx.extensions|join(', ') }})</label>
+    <input type="file" id="rag-file" accept=".pdf,.txt,application/pdf,text/plain" required>
+    <div class="row"><button class="btn btn-primary" type="submit" id="rag-upload-btn">Upload and index</button></div>
+  </form>
+  <div id="rag-upload-status" class="status-line" role="status" aria-live="polite" hidden></div>
+
+  <h3>Indexed documents</h3>
+  <ul class="doclist" id="rag-docs" data-initial='{{ ctx.documents|tojson|forceescape }}'></ul>
+  <p class="muted" id="rag-docs-empty">No documents indexed yet.</p>
+</section>
+
+<section class="panel" aria-labelledby="rag-q-h">
+  <h2 id="rag-q-h">2. Ask a question</h2>
+  <form id="rag-ask-form" class="stack" novalidate>
+    <label for="rag-question">Question about your document(s)</label>
+    <textarea id="rag-question" rows="2" maxlength="1000" placeholder="e.g. What are the main conclusions?" required></textarea>
+    <fieldset class="engine" id="rag-engine">
+      <legend>Answer engine</legend>
+      <label class="check"><input type="radio" name="rag-engine" value="none" checked>
+        <span><strong>Retrieval only</strong> — shows the exact FAISS passages. No generation, instant.</span></label>
+      <label class="check"><input type="radio" name="rag-engine" value="gemini" {% if not ctx.gemini_ok %}disabled{% endif %}>
+        <span><strong>Gemini (cloud API)</strong> — writes the answer from the retrieved passages; no 6&nbsp;GB download. <em>The retrieved passages are sent to Google.</em>{% if not ctx.gemini_ok %} <em>Needs GEMINI_API_KEY.</em>{% endif %}</span></label>
+      <label class="check"><input type="radio" name="rag-engine" value="local" {% if not ctx.gen_enabled %}disabled{% endif %}>
+        <span><strong>Qwen2.5-3B (local, original model)</strong> — about 6&nbsp;GB download and memory; very slow on CPU.{% if not ctx.gen_enabled %} <em>Disabled in server configuration.</em>{% endif %}</span></label>
+    </fieldset>
+    {{ gemini_hint(ctx.gemini_ok, ctx.gemini_model) }}
+    <div class="row"><button class="btn btn-primary" type="submit" id="rag-ask-btn">Ask question</button></div>
+  </form>
+  <div id="rag-status" class="status-line" role="status" aria-live="polite" hidden></div>
+
+  <div id="rag-result" hidden>
+    <h3>Answer</h3>
+    <div class="answer" id="rag-answer"></div>
+    <div class="alert alert-info" id="rag-gen-note" hidden></div>
+    <h3>Retrieved source passages</h3>
+    <p class="muted small">These are the exact chunks retrieved by FAISS (similarity = cosine score). The answer is grounded only in them.</p>
+    <ol class="sources" id="rag-sources"></ol>
+  </div>
+</section>

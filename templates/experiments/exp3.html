@@ -1,0 +1,54 @@
+{% from "_macros.html" import gemini_hint %}
+{% set qs = ctx.qa_status if ctx else None %}
+<section class="panel" aria-labelledby="qa-h">
+  <h2 id="qa-h">Ask TinyLlama</h2>
+  <p class="muted">Runs <code>{{ exp.model }}</code> locally through Hugging Face Transformers. The model is loaded once on the first question (first run downloads about 2.2&nbsp;GB) and then reused.</p>
+
+  <div class="alert alert-info" id="qa-device" role="status">
+    {% if qs %}
+      Device: <strong id="qa-device-name">{{ qs.device }}</strong> ·
+      Model state: <strong id="qa-state">{{ qs.state|replace('_',' ') }}</strong>
+      {% if qs.cpu_warning %}<br>No CUDA GPU detected: answers run on the CPU and can take a long time (tens of seconds or more).{% endif %}
+      {% if qs.cuda_available is none %}<br>PyTorch is not installed, so the model cannot load yet. Run <code>pip install -r requirements-ml.txt</code>.{% endif %}
+    {% else %}Status unavailable.{% endif %}
+  </div>
+
+  <div class="chat" id="chat" role="log" aria-live="polite" aria-label="Conversation">
+    <p class="chat-empty muted" id="chat-empty">No messages yet. Ask something below.</p>
+  </div>
+
+  {{ gemini_hint(ctx.gemini_ok, ctx.gemini_model) }}
+
+  <form id="qa-form" class="stack" novalidate>
+    <fieldset class="engine" id="qa-engine">
+      <legend>Answer engine</legend>
+      <label class="check"><input type="radio" name="qa-engine" value="local" {% if ctx.default_engine == 'local' %}checked{% endif %}>
+        <span><strong>TinyLlama (local, open-source)</strong> — the experiment's model. First use downloads about 2.2&nbsp;GB and needs <code>requirements-ml.txt</code>.{% if not ctx.local_ok %} <em>Not installed on this machine.</em>{% endif %}</span></label>
+      <label class="check"><input type="radio" name="qa-engine" value="gemini" {% if ctx.default_engine == 'gemini' %}checked{% endif %} {% if not ctx.gemini_ok %}disabled{% endif %}>
+        <span><strong>Gemini (cloud API)</strong> — no download. Answers are labelled “Gemini”; this is <em>not</em> the TinyLlama model.{% if not ctx.gemini_ok %} <em>Needs GEMINI_API_KEY.</em>{% endif %}</span></label>
+    </fieldset>
+    <label for="qa-input">Your question</label>
+    <textarea id="qa-input" rows="3" maxlength="2000" placeholder="e.g. Explain what a transformer is in two sentences." required></textarea>
+    <details class="advanced">
+      <summary>Generation settings</summary>
+      <div class="fields">
+        <label>Max new tokens <input type="number" id="qa-max" min="16" max="512" step="16" value="{{ ctx.defaults.max_new_tokens if ctx else 256 }}"></label>
+        <label>Temperature (0 = deterministic) <input type="number" id="qa-temp" min="0" max="1.5" step="0.1" value="{{ ctx.defaults.temperature if ctx else 0.7 }}"></label>
+        <label>Top-p <input type="number" id="qa-topp" min="0.1" max="1" step="0.05" value="{{ ctx.defaults.top_p if ctx else 0.9 }}"></label>
+      </div>
+    </details>
+    <div class="row">
+      <button class="btn btn-primary" type="submit" id="qa-send">Ask question</button>
+      <button class="btn btn-ghost" type="button" id="qa-clear">Clear chat</button>
+    </div>
+  </form>
+</section>
+
+<section class="panel">
+  <h3>About this experiment</h3>
+  <ul class="plain">
+    <li>The prompt is formatted with the model's own chat template (system + user turn).</li>
+    <li>TinyLlama is a very small model: expect plausible but sometimes wrong answers. Treat outputs as a demonstration, not as facts.</li>
+    <li>The original notebook wrapped the same model in Gradio; this page is a custom Flask/JavaScript replacement using the same pretrained weights.</li>
+  </ul>
+</section>

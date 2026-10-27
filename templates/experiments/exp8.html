@@ -1,0 +1,56 @@
+<section class="panel" aria-labelledby="mg-saved-h">
+  <h2 id="mg-saved-h">Saved clips from the original notebook</h2>
+  <p class="muted">Genuine audio embedded in the notebook output (MusicGen-small, sampled generation, about 30 seconds each). These are stored results, not live generations.</p>
+  {% if ctx.clips %}
+  <ul class="clips">
+    {% for clip in ctx.clips %}
+    <li>
+      <p class="clip-prompt">“{{ clip.prompt }}”</p>
+      <audio controls preload="none" src="{{ clip.url }}">Your browser does not support audio playback.</audio>
+      <a class="btn btn-ghost btn-sm" href="{{ clip.download_url }}">Download WAV</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty"><p><strong>No saved clips found.</strong> Add .wav files to <code>experiments/experiment_08_musicgen/outputs/audio/</code>.</p></div>
+  {% endif %}
+</section>
+
+<section class="panel" aria-labelledby="mg-live-h">
+  <h2 id="mg-live-h">Generate music</h2>
+  <p class="muted">Runs <code>{{ ctx.model }}</code> locally with the same Transformers pipeline as the notebook. The model (about 2.3&nbsp;GB) downloads on first use and stays in memory afterwards.</p>
+
+  {% if ctx.live_available %}
+  <div class="alert alert-warn" role="note">Without a CUDA GPU, generation is slow: even a short clip can take several minutes on a CPU. Duration is capped at {{ ctx.max_seconds }} seconds. This feature has not been tested until you run it.</div>
+  {% else %}
+  <div class="alert alert-warn" role="status"><strong>Live generation is off.</strong> {{ ctx.live_reason }} The saved clips above still work.</div>
+  {% endif %}
+
+  <form id="music-form" class="stack" novalidate>
+    <label for="music-prompt">Music description</label>
+    <textarea id="music-prompt" rows="2" maxlength="300" placeholder="e.g. a calm ambient track with soft synth pads" required {% if not ctx.live_available %}disabled{% endif %}></textarea>
+    <div class="fields">
+      <label>Duration (seconds)
+        <input type="number" id="music-seconds" min="2" max="{{ ctx.max_seconds }}" value="8" {% if not ctx.live_available %}disabled{% endif %}>
+      </label>
+    </div>
+    <div class="row">
+      <button class="btn btn-primary" type="submit" id="music-btn" {% if not ctx.live_available %}disabled{% endif %}>Generate music</button>
+    </div>
+  </form>
+
+  <div id="music-status" class="status-line" role="status" aria-live="polite" hidden></div>
+  <div id="music-result" class="result" hidden>
+    <p class="clip-prompt" id="music-caption"></p>
+    <audio id="music-audio" controls></audio>
+    <a class="btn btn-ghost" id="music-download" href="#" download>Save WAV</a>
+  </div>
+</section>
+
+<section class="panel">
+  <h3>About this experiment</h3>
+  <ul class="plain">
+    <li>MusicGen is a pretrained Transformer from Meta AI that generates music from a text description (zero-shot: no dataset or training in this experiment).</li>
+    <li>Output is mono audio at 32&nbsp;kHz. Quality and prompt-following vary between samples.</li>
+  </ul>
+</section>

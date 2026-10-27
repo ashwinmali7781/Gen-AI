@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_chip %}
+{% block content %}
+<section class="hero">
+  <p class="eyebrow">AI/ML practical showcase</p>
+  <h1>{{ app_name }}</h1>
+  <p class="lead">One place to explore {{ cards|length }} generative-AI experiments: a chat transformer, text-to-image diffusion, two face-generating GANs, text-to-music and document Q&amp;A with RAG.</p>
+  <p class="callout"><strong>No model training is required.</strong> Training results shown here are genuine outputs saved from the original notebooks; live demos use pretrained models.</p>
+</section>
+
+<section class="stats" aria-label="Dashboard statistics">
+  <div class="stat"><span class="stat-num">{{ cards|length }}</span><span class="stat-label">Integrated experiments</span></div>
+  <div class="stat"><span class="stat-num">{{ cards|selectattr('kind', 'in', ['saved','hybrid'])|list|length }}</span><span class="stat-label">With saved notebook outputs</span></div>
+  <div class="stat"><span class="stat-num">{{ cards|selectattr('kind', 'in', ['live','hybrid'])|list|length }}</span><span class="stat-label">With live inference option</span></div>
+  <div class="stat"><span class="stat-num">0</span><span class="stat-label">Training runs triggered by this app</span></div>
+</section>
+
+<section id="experiments" aria-labelledby="exp-h">
+  <div class="section-head">
+    <h2 id="exp-h">Experiments</h2>
+    <div class="filters">
+      <label class="sr-only" for="exp-search">Search experiments</label>
+      <input type="search" id="exp-search" placeholder="Search experiments, models, tags…" autocomplete="off">
+      <div class="seg" role="group" aria-label="Filter by type">
+        <button type="button" class="seg-btn active" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" class="seg-btn" data-filter="live" aria-pressed="false">Live inference</button>
+        <button type="button" class="seg-btn" data-filter="saved" aria-pressed="false">Saved outputs</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid" id="exp-grid">
+    {% for c in cards %}
+    <article class="card" data-kind="{{ c.kind }}"
+             data-search="{{ (c.title ~ ' ' ~ c.summary ~ ' ' ~ c.model ~ ' ' ~ c.tags|join(' '))|lower }}">
+      <div class="card-top">
+        <span class="badge">Exp {{ c.number }}</span>
+        {{ status_chip(c.status) }}
+      </div>
+      <h3>{{ c.title }}</h3>
+      <p>{{ c.summary }}</p>
+      <dl class="meta">
+        <dt>Model</dt><dd>{{ c.model }}</dd>
+        <dt>Type</dt><dd>{{ c.uses }}</dd>
+      </dl>
+      <p class="status-detail">{{ c.status.detail }}</p>
+      <div class="card-actions">
+        <a class="btn btn-primary" href="{{ url_for('experiment_detail', exp_id=c.id) }}">Open experiment</a>
+        <a class="btn btn-ghost" href="{{ c.colab }}" target="_blank" rel="noopener">Colab notebook</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  <div class="empty" id="exp-empty" hidden><p><strong>No experiments match your search.</strong> Clear the search box or change the filter.</p></div>
+  <p class="muted small" id="exp-count" aria-live="polite"></p>
+</section>
+
+<section class="panel assistant" aria-labelledby="asst-h">
+  <h2 id="asst-h">Concept assistant <span class="chip chip-neutral">Optional · Google Gemini</span></h2>
+  <p class="muted">Ask a general question about the concepts in these experiments. This is separate from the open-source models used in the experiments and never replaces them.</p>
+  {% if gemini_enabled %}
+  <form id="assistant-form" class="stack">
+    <label for="assistant-q">Your question</label>
+    <textarea id="assistant-q" rows="2" maxlength="1500" placeholder="e.g. What is the difference between DCGAN and StyleGAN?" required></textarea>
+    <div><button class="btn btn-primary" type="submit" id="assistant-btn">Ask assistant</button></div>
+    <div id="assistant-out" class="answer" aria-live="polite" hidden></div>
+  </form>
+  {% else %}
+  <div class="empty"><p><strong>Assistant not configured.</strong> Add <code>GEMINI_API_KEY</code> to your <code>.env</code> file and restart to enable it. The rest of the dashboard works without it.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

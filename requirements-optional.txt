@@ -1,0 +1,3 @@
+# Optional: Gemini mode (Exp 3 chat, Exp 9 answers) and the dashboard assistant. Needs GEMINI_API_KEY in .env.
+-r requirements.txt
+google-genai>=1.0

@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ app_name }} — {{ app_tagline }}{% endblock %}</title>
+  <meta name="description" content="Unified showcase of AI/ML experiments: transformers, diffusion, GANs, MusicGen and RAG.">
+  <link rel="icon" href="{{ url_for('static', filename='images/logo.svg') }}" type="image/svg+xml">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <div class="app">
+    <aside class="sidebar" id="sidebar" aria-label="Primary navigation">
+      <a class="brand" href="{{ url_for('index') }}">
+        <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="" width="32" height="32">
+        <span><strong>{{ app_name }}</strong><small>{{ app_tagline }}</small></span>
+      </a>
+      <nav>
+        <a href="{{ url_for('index') }}" class="nav-link{% if request.endpoint == 'index' %} active{% endif %}">Dashboard</a>
+        <p class="nav-label">Experiments</p>
+        {% for e in nav_experiments %}
+        <a href="{{ url_for('experiment_detail', exp_id=e.id) }}"
+           class="nav-link{% if exp is defined and exp and exp.id == e.id %} active{% endif %}"
+           {% if exp is defined and exp and exp.id == e.id %}aria-current="page"{% endif %}>
+          <span class="nav-num">{{ e.number }}</span>{{ e.title }}
+        </a>
+        {% endfor %}
+      </nav>
+      <p class="sidebar-note">Demo build. No model training is run in this app.</p>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebar-backdrop" hidden></div>
+
+    <div class="content">
+      <header class="topbar">
+        <button class="icon-btn" id="menu-toggle" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle navigation">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <span class="topbar-title">{{ app_name }} <span class="muted">· {{ app_tagline }}</span></span>
+        <nav class="topbar-links" aria-label="Secondary">
+          <a href="{{ url_for('index') }}#experiments">Experiments</a>
+          <a href="{{ repo_url or 'https://github.com/TheSarthakShinde/GENAI-' }}" target="_blank" rel="noopener">Source repo</a>
+        </nav>
+      </header>
+
+      <main id="main" tabindex="-1">
+        {% block content %}{% endblock %}
+      </main>
+
+      <footer class="footer">
+        <p>{{ app_name }} runs on Flask's development server for local demonstrations. Not for production use.</p>
+      </footer>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged image" hidden>
+    <button class="icon-btn lightbox-close" id="lightbox-close" type="button" aria-label="Close enlarged image">✕</button>
+    <figure>
+      <img id="lightbox-img" alt="">
+      <figcaption id="lightbox-caption"></figcaption>
+    </figure>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

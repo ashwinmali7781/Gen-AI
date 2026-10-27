@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from "_macros.html" import status_chip %}
+{% block title %}Experiment {{ exp.number }}: {{ exp.title }} — {{ app_name }}{% endblock %}
+{% block content %}
+<nav class="breadcrumb" aria-label="Breadcrumb"><a href="{{ url_for('index') }}">Dashboard</a> <span aria-hidden="true">/</span> <span>Experiment {{ exp.number }}</span></nav>
+
+<header class="page-head">
+  <div>
+    <p class="eyebrow">Experiment {{ exp.number }}</p>
+    <h1>{{ exp.title }}</h1>
+    <p class="lead">{{ exp.summary }}</p>
+  </div>
+  <div class="page-head-side">
+    {{ status_chip(status) }}
+    <p class="status-detail">{{ status.detail }}</p>
+  </div>
+</header>
+
+<dl class="meta meta-row">
+  <div><dt>Model</dt><dd>{{ exp.model }}</dd></div>
+  <div><dt>Type</dt><dd>{{ exp.uses }}</dd></div>
+  <div><dt>Original notebook</dt><dd><a href="{{ colab }}" target="_blank" rel="noopener">{{ exp.notebook }}</a></dd></div>
+</dl>
+
+{% if load_error %}
+<div class="alert alert-error" role="alert"><strong>This experiment failed to load.</strong> The rest of the dashboard is unaffected. Details: {{ load_error }}</div>
+{% endif %}
+
+{% include "experiments/" ~ exp.id ~ ".html" %}
+{% endblock %}
+
+{% block scripts %}
+{% set script_map = {'exp3': 'qa.js', 'exp4': 'image_generation.js', 'exp8': 'music_generation.js', 'exp9': 'rag.js', 'exp6': 'replay.js', 'exp7': 'replay.js'} %}
+{% if exp.id in script_map and not load_error %}
+<script src="{{ url_for('static', filename='js/' ~ script_map[exp.id]) }}" defer></script>
+{% endif %}
+{% endblock %}

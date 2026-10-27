@@ -1,0 +1,10 @@
+{% set gallery_intro = "Nothing is trained or generated live on this page. Every image was saved from the original Colab notebook run (DCGAN on 40,000 CelebA faces, 15 epochs, 64×64)." %}
+{% set compare_heading = "Early training vs end of training" %}
+{% set compare_note = "Both grids use the same fixed noise vectors. The notebook saved one snapshot per epoch, so the earliest available image is after epoch 1; no image from the untrained network was saved." %}
+{% set notes = [
+  "A DCGAN pairs a convolutional generator (noise → 64×64 face) with a discriminator (real vs fake) trained adversarially with binary cross-entropy.",
+  "Training data: a 40,000-image subset of CelebA, resized and centre-cropped to 64×64 and normalised to [-1, 1].",
+  "Generated faces are low-resolution and show typical GAN artefacts; they are results of the notebook, not of this web app.",
+  "The notebook also saved the trained generator weights to Colab storage, but they are not part of the repository, so live generation is not offered here."
+] %}
+{% include "experiments/_gallery_page.html" %}

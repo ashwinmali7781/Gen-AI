@@ -1,0 +1,25 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# runtime data (generated at run time; saved notebook outputs ARE tracked)
+experiments/experiment_09_rag/uploads/*
+!experiments/experiment_09_rag/uploads/.gitkeep
+experiments/experiment_04_diffusion/outputs/generated/*
+!experiments/experiment_04_diffusion/outputs/generated/.gitkeep
+experiments/experiment_08_musicgen/outputs/generated/*
+!experiments/experiment_08_musicgen/outputs/generated/.gitkeep
+
+# editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

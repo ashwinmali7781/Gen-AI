@@ -1,0 +1,91 @@
+{% macro status_chip(status) %}
+<span class="chip chip-{{ status.level }}" title="{{ status.detail }}">{{ status.label }}</span>
+{% endmacro %}
+
+{% macro gallery_section(section) %}
+<section class="panel" aria-labelledby="g-{{ section.key }}">
+  <h3 id="g-{{ section.key }}">{{ section.title }}</h3>
+  <p class="muted">{{ section.description }}</p>
+  {% if section["items"] %}
+  <ul class="gallery">
+    {% for item in section["items"] %}
+    <li>
+      <button type="button" class="thumb" data-lightbox data-full="{{ item.url }}" data-caption="{{ item.caption }}" aria-label="Enlarge: {{ item.caption }}">
+        <img src="{{ item.url }}" alt="{{ item.caption }}" loading="lazy">
+      </button>
+      <p class="caption">{{ item.caption }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty">
+    <p><strong>No images found.</strong> Add the original notebook output images to <code>{{ section.folder_hint }}</code> and reload.</p>
+  </div>
+  {% endif %}
+</section>
+{% endmacro %}
+
+{% macro compare_block(compare, heading, note) %}
+<section class="panel" aria-labelledby="cmp-h">
+  <h3 id="cmp-h">{{ heading }}</h3>
+  <p class="muted">{{ note }}</p>
+  {% if compare %}
+  <div class="compare">
+    {% for side in [compare.early, compare.final] %}
+    <figure>
+      <button type="button" class="thumb" data-lightbox data-full="{{ side.url }}" data-caption="{{ side.label }}" aria-label="Enlarge: {{ side.label }}">
+        <img src="{{ side.url }}" alt="{{ side.label }}" loading="lazy">
+      </button>
+      <figcaption class="caption">{{ side.label }}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty"><p><strong>Comparison unavailable.</strong> The epoch snapshots are missing from the <code>outputs/training/</code> folder.</p></div>
+  {% endif %}
+</section>
+{% endmacro %}
+
+{% macro replay_block(replay) %}
+<section class="panel" aria-labelledby="rp-h">
+  <h3 id="rp-h">Training replay</h3>
+  <p class="muted"><strong>This is a replay of saved snapshots, not a live run.</strong> It plays the images the original notebook saved at the end of each epoch. No training or generation happens here.</p>
+  {% if replay %}
+  <div class="replay" id="replay" data-frames='{{ replay|tojson|forceescape }}'>
+    <figure>
+      <img id="replay-img" src="{{ replay[0].url }}" alt="{{ replay[0].label }} snapshot">
+      <figcaption class="caption" id="replay-caption" aria-live="polite">{{ replay[0].label }}</figcaption>
+    </figure>
+    <div class="row">
+      <button type="button" class="btn btn-primary" id="replay-play">Play replay</button>
+      <button type="button" class="btn btn-ghost" id="replay-reset">Restart</button>
+      <label class="check"><span>Speed</span>
+        <select id="replay-speed" aria-label="Replay speed">
+          <option value="1200">Slow</option><option value="700" selected>Normal</option><option value="300">Fast</option>
+        </select>
+      </label>
+    </div>
+    <label for="replay-slider" class="sr-only">Epoch</label>
+    <input type="range" id="replay-slider" min="0" max="{{ replay|length - 1 }}" value="0" step="1">
+  </div>
+  {% else %}
+  <div class="empty"><p><strong>No snapshots found.</strong> Add <code>epoch_01_samples.png</code>… to <code>outputs/training/</code>.</p></div>
+  {% endif %}
+</section>
+{% endmacro %}
+
+{% macro gemini_hint(gemini_ok, model) %}
+{% if gemini_ok %}
+<div class="alert alert-info" role="status">Gemini key found (model <code>{{ model }}</code>). Gemini mode is available and is only used when you select it.</div>
+{% else %}
+<div class="alert alert-warn" role="note">
+  <strong>No Gemini key yet.</strong> To enable Gemini mode (no big model download):
+  <ol class="plain">
+    <li>Create a key in Google AI Studio: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">aistudio.google.com/apikey</a>.</li>
+    <li>In the project folder, copy <code>.env.example</code> to <code>.env</code> and paste the key after <code>GEMINI_API_KEY=</code> (no quotes, no spaces).</li>
+    <li>Run <code>pip install -r requirements-optional.txt</code>, then restart <code>python app.py</code>.</li>
+  </ol>
+  The key stays on the server and is never shown in the browser.
+</div>
+{% endif %}
+{% endmacro %}

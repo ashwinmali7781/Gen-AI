@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Page not found — {{ app_name }}{% endblock %}
+{% block content %}
+<section class="hero narrow">
+  <p class="eyebrow">Error 404</p>
+  <h1>Page not found</h1>
+  <p class="lead">That page or experiment does not exist.</p>
+  <p><a class="btn btn-primary" href="{{ url_for('index') }}">Back to dashboard</a></p>
+</section>
+{% endblock %}

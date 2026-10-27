@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Error — {{ app_name }}{% endblock %}
+{% block content %}
+<section class="hero narrow">
+  <p class="eyebrow">Error {{ code|default(500) }}</p>
+  <h1>Something went wrong</h1>
+  <p class="lead">{{ message|default("An unexpected error occurred.") }}</p>
+  <p><a class="btn btn-primary" href="{{ url_for('index') }}">Back to dashboard</a></p>
+</section>
+{% endblock %}

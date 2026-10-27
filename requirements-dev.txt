@@ -1,0 +1,8 @@
+# Test dependencies. The offline suite needs numpy, scipy, pymupdf and faiss-cpu for the
+# RAG/MusicGen tests; tests are skipped automatically when a package is missing.
+-r requirements.txt
+pytest>=8.0
+numpy>=1.26
+scipy>=1.11
+pymupdf>=1.24
+faiss-cpu>=1.8

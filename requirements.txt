@@ -1,0 +1,7 @@
+# Core dependencies: enough to start the dashboard, view all saved outputs,
+# and use hosted image generation (Experiment 4). No PyTorch required.
+# Lower bounds only (versions actually tested are listed in README.md).
+Flask>=3.0,<4
+python-dotenv>=1.0
+Pillow>=10.0
+huggingface_hub>=0.34

@@ -1,0 +1,56 @@
+{% from "_macros.html" import gallery_section %}
+<section class="panel" aria-labelledby="img-h">
+  <h2 id="img-h">Generate an image</h2>
+  <p class="muted">Uses the open-source diffusion model <code>{{ ctx.model }}</code> through Hugging Face Inference Providers (provider: <code>{{ ctx.provider }}</code>). No model weights are downloaded to your computer.</p>
+
+  {% if ctx.live_configured %}
+  <div class="alert alert-info" role="status">Hosted generation is configured. It has not been tested until you click Generate; availability depends on your Hugging Face account and the provider.</div>
+  {% else %}
+  <div class="alert alert-warn" role="status"><strong>Live generation is off.</strong> {{ ctx.live_reason }} The saved notebook output below is still available.</div>
+  {% endif %}
+
+  <form id="img-form" class="stack" novalidate>
+    <label for="img-prompt">Prompt</label>
+    <textarea id="img-prompt" rows="3" maxlength="500" placeholder="e.g. A watercolor painting of a lighthouse at sunrise" required {% if not ctx.live_configured %}disabled{% endif %}></textarea>
+    <div class="fields">
+      <label>Size
+        <select id="img-size" {% if not ctx.live_configured %}disabled{% endif %}>
+          {% for s in ctx.sizes %}<option value="{{ s }}" {% if s == 768 %}selected{% endif %}>{{ s }} × {{ s }}</option>{% endfor %}
+        </select>
+      </label>
+    </div>
+    <div class="row">
+      <button class="btn btn-primary" type="submit" id="img-btn" {% if not ctx.live_configured %}disabled{% endif %}>Generate image</button>
+    </div>
+  </form>
+
+  <div id="img-status" class="status-line" role="status" aria-live="polite" hidden></div>
+  <div id="img-result" class="result" hidden>
+    <button type="button" class="thumb thumb-large" id="img-thumb" data-lightbox aria-label="Enlarge generated image"><img id="img-out" alt="Generated image"></button>
+    <p class="caption" id="img-caption"></p>
+    <a class="btn btn-ghost" id="img-download" href="#" download>Save image</a>
+  </div>
+</section>
+
+<section class="panel" aria-labelledby="saved-h">
+  <h2 id="saved-h">Saved example from the original notebook</h2>
+  <p class="muted">The notebook used Stable Diffusion v1.5 (not FLUX). This is a stored result, shown whether or not live generation is available.</p>
+  {% if ctx.saved %}
+  <ul class="gallery">
+    {% for item in ctx.saved %}
+    <li>
+      <button type="button" class="thumb" data-lightbox data-full="{{ item.url }}" data-caption="{{ item.caption }}" aria-label="Enlarge saved output"><img src="{{ item.url }}" alt="{{ item.caption }}" loading="lazy"></button>
+      <p class="caption">{{ item.caption }}</p>
+      <a class="btn btn-ghost btn-sm" href="{{ item.url }}?download=1">Download</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty"><p><strong>No saved outputs.</strong> Add images to <code>experiments/experiment_04_diffusion/outputs/saved/</code>.</p></div>
+  {% endif %}
+</section>
+
+<section class="panel">
+  <h3>License &amp; access</h3>
+  <p class="muted">FLUX.1-schnell is published as open weights by Black Forest Labs (to my knowledge under Apache-2.0; confirm the current license on its Hugging Face model page). Hosted calls need a Hugging Face token with the “Make calls to Inference Providers” permission; usage may consume monthly credits or incur provider charges depending on your account. Check your account's current limits.</p>
+</section>

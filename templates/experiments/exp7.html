@@ -1,0 +1,10 @@
+{% set gallery_intro = "StyleGAN training is not run here. Every image was saved from the original Colab notebook run (compact StyleGAN-style generator on 20,000 CelebA faces, 15 epochs, 64×64)." %}
+{% set compare_heading = "Before vs after training" %}
+{% set compare_note = "Left: the earliest snapshot saved in the notebook (end of epoch 1). Right: the final snapshot (end of epoch 15). Both use the same fixed noise vectors. The notebook did not save an image from the completely untrained network." %}
+{% set notes = [
+  "Compared with DCGAN, StyleGAN maps the noise vector z to an intermediate style vector w (mapping network) and injects it into every synthesis block via adaptive instance normalisation (AdaIN), starting from a learned constant instead of z.",
+  "Training used non-saturating logistic loss with lazy R1 regularisation, as described in the notebook.",
+  "The notebook's extra demonstrations (truncation trick, style mixing, per-layer noise variation) are shown under Results.",
+  "This is a compact, short-trained educational model, so image quality is far below published StyleGAN results."
+] %}
+{% include "experiments/_gallery_page.html" %}

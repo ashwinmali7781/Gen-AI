@@ -1,0 +1,12 @@
+# Local model dependencies: Experiment 3 (TinyLlama), 8 (MusicGen live), 9 (RAG).
+# Install AFTER requirements.txt:   pip install -r requirements-ml.txt
+-r requirements.txt
+
+torch>=2.2            # Windows: the default pip wheel is CPU-only. For an NVIDIA GPU see https://pytorch.org/get-started/locally/
+transformers>=4.45
+accelerate>=0.34      # needed by device_map="auto" in the RAG generator
+numpy>=1.26
+scipy>=1.11           # writes MusicGen WAV files
+sentence-transformers>=3.0
+faiss-cpu>=1.8
+pymupdf>=1.24         # PDF text extraction (import name: pymupdf / fitz)
